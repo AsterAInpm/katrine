@@ -1,0 +1,6 @@
+.idea
+.git
+src
+test-app
+tsconfig.json
+.gitignore

@@ -1,0 +1,27 @@
+{
+  "name": "kate",
+  "version": "1.0.0",
+  "description": "Typescript based web framework",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node ./node_modules/tsc-watch"
+  },
+  "keywords": [
+    "web",
+    "mcv",
+    "framework",
+    "kate",
+    "typescript"
+  ],
+  "author": "Alex Baranezky",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^10.5.2",
+    "tsc-watch": "^1.0.26",
+    "typescript": "^2.9.2"
+  },
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
