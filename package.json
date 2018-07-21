@@ -1,5 +1,5 @@
 {
-  "name": "kate",
+  "name": "kate-web-mvc",
   "version": "1.0.0",
   "description": "Typescript based web framework",
   "main": "lib/index.js",
