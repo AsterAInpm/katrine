@@ -14,10 +14,7 @@ class IndexController {
 
   @action('/') // express compatible route
   someIndexAction(req): string {
-    return JSON.stringify({
-      field_1: 'value_122',
-      field_2: 'value_2',
-    })
+    return 'Kate web MVC! Hello world!';
   }
 
 }
