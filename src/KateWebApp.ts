@@ -1,6 +1,6 @@
 import * as express from 'express'
 
-class KateWebApp {
+export default new class KateWebApp {
 
   private express;
 
@@ -10,7 +10,6 @@ class KateWebApp {
 
   private actions: Map<string, any> = new Map<string, any>();
 
-  private router = express.Router();
 
   constructor() {
     this.express = express();
@@ -76,5 +75,3 @@ class KateWebApp {
   }
 
 }
-
-export default new KateWebApp();

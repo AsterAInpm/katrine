@@ -1,4 +1,4 @@
-import KateWebApp from './KateWebApp';
+import  KateWebApp from './KateWebApp';
 import  { action } from './Controller';
 
 export {
