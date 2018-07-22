@@ -1,4 +1,4 @@
-import { action } from '../src';
+import { action } from '../../src';
 
 export default class IndexController {
 

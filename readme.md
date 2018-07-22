@@ -1,13 +1,13 @@
 #Typescript based web MVC framework
 
 
-    npm  i kate-web-mvc typescript @types/node express
+    npm  i katrine typescript @types/node express
     
 ### example
 
 ```typescript
 
-import { KateWebApp, action } from 'kate-web-mvc';
+import { KatrineApp, action } from 'katrine';
 
 
 class IndexController {
@@ -20,10 +20,10 @@ class IndexController {
 }
 
 // register controller
-KateWebApp.addController(new IndexController());
+KatrineApp.addController(new IndexController());
 
 const port = process.env.PORT || 3000;
-KateWebApp.run(port);
+KatrineApp.run(port);
 
 
 ```

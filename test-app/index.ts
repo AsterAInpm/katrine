@@ -1,10 +1,10 @@
-import { KateWebApp } from '../src/';
+import { KatrineApp } from '../src/';
 
-import IndexController from './IndexController';
-import UserController from './UserController';
+import IndexController from './controller/IndexController';
+import UserController from './controller/UserController';
 
-KateWebApp.addController(new IndexController());
-KateWebApp.addController(new UserController());
+KatrineApp.addController(new IndexController());
+KatrineApp.addController(new UserController());
 
 const port = process.env.PORT || 3000;
-KateWebApp.run(port);
+KatrineApp.run(port);

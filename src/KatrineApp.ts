@@ -1,6 +1,6 @@
 import * as express from 'express'
 
-export default new class KateWebApp {
+export default new class KatrineApp {
 
   private express;
 

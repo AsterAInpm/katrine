@@ -1,4 +1,4 @@
-import KateWebApp from "./KateWebApp";
+import KateWebApp from "./KatrineApp";
 
 export function action(route: string) {
 

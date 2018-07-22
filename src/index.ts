@@ -1,7 +1,7 @@
-import  KateWebApp from './KateWebApp';
+import  KatrineApp from './KatrineApp';
 import  { action } from './Controller';
 
 export {
-  KateWebApp,
+  KatrineApp,
   action
 }
