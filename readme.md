@@ -1,4 +1,4 @@
-#Typescript based web MVC framework
+# Typescript based web MVC framework
 
 
     npm  i katrine typescript @types/node express
@@ -14,7 +14,8 @@ class IndexController {
 
   @action('/') // express compatible route
   someIndexAction(req): string {
-    return 'Kate web MVC! Hello world!';
+
+    return "<h1>Kate web MVC! Hello world!</h1>";
   }
 
 }
