@@ -4,6 +4,7 @@ export default class UserController {
 
   @action('/user')
   indexAction(req): string {
+    // return this.renderLayout( 'main', {name, 'name'});
     return 'User controller, index action';
   }
 

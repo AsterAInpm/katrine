@@ -50,10 +50,28 @@ export default new class KatrineApp {
     });
   }
 
+  private getActionPromise(action, controller, req) {
+    return new Promise((resolve, reject) => {
+      try {
+        const respString = action.apply(controller, [req]);
+        resolve(respString);
+      } catch (e) {
+        reject('error')
+      }
+    })
+  }
+
+
   private bindRouteToServer(route: string, action, controller) {
     this.express.get(route, (req, res) => {
-      const respString = action.apply(controller, [req]);
-      res.send(respString);
+      this.getActionPromise(action, controller, req)
+        .then((respString) => {
+          res.send(respString);
+        })
+        .catch(() => {
+          res.status(404)
+          res.send('Page not found');
+        })
     });
   }
 
