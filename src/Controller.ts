@@ -1,8 +1,49 @@
-import KateWebApp from "./KatrineApp";
+const pug = require('pug');
 
-export function action(route: string) {
+export default class Controller {
 
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    KateWebApp.storeRoute(route, propertyKey, target.constructor);
-  };
+  protected cachedViews: Map<string, any> = new Map<string, any>();
+  protected cachedLayoutViews: Map<string, any> = new Map<string, any>();
+
+  public getLayout(): string {
+    return '';
+  }
+
+  protected getPugViewTemplate(viewPath) {
+    if (!this.cachedViews.has(viewPath)) {
+      const view = pug.compileFile(viewPath);
+      this.cachedViews.set(viewPath, view);
+    }
+
+    return this.cachedViews.get(viewPath);
+  }
+
+
+  protected getPugLayoutTemplate(layoutName) {
+    if (!this.cachedLayoutViews.has(layoutName)) {
+      const view = pug.compileFile(layoutName);
+      this.cachedLayoutViews.set(layoutName, view);
+    }
+
+    return this.cachedLayoutViews.get(layoutName);
+  }
+
+  protected render(viewPath, params) {
+    const template = this.getPugViewTemplate(viewPath);
+
+    const renderedActionContent = template(params);
+
+    if (this.getLayout()) {
+      return this.renderLayout(renderedActionContent);
+    }
+
+    return renderedActionContent;
+  }
+
+  protected renderLayout(content) {
+    const template = this.getPugLayoutTemplate(this.getLayout());
+
+    return template({ content });
+  }
+
 }

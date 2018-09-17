@@ -1,13 +1,17 @@
-import { action } from '../../src';
+import { action, Controller } from '../../src';
 
-export default class IndexController {
+export default class IndexController extends Controller {
+
+  getLayout() {
+    return './test-app/view/main.layout.pug';
+  }
 
   @action('/')
   someIndexAction(req): string {
-    return JSON.stringify({
-      field_1: 'value_1',
-      field_2: 'value_2',
-    })
+    return this.render(
+      './test-app/view/index.pug',
+      {name: 'Vasia'}
+      );
   }
 
   @action('/test')
