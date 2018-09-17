@@ -19,6 +19,10 @@ export default new class KatrineApp {
     this.controllers.push(controller);
   }
 
+  setPublicFolder(folder: string) {
+    this.express.use(express.static(folder));
+  }
+
   storeRoute(route: string, handler, context) {
     let routeMap: Map<string, string>;
     if (this.storedRoutes.has(context)) {
