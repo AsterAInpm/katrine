@@ -1,32 +1,42 @@
 # Typescript based web MVC framework
 
+Hello world project you can find out at 
 
-    npm  i katrine typescript @types/node express
-    
-### example
+https://github.com/AsterAInpm/katrine-hello-world/
 
-```typescript
+### Description of main features in controller
 
-import { KatrineApp, action } from 'katrine';
+``` typescript
+import { action, Controller } from 'katrine';
 
 
-class IndexController {
+export default class IndexController extends Controller {
 
-  @action('/') // express compatible route
-  someIndexAction(req): string {
+  /**
+   * Methods returns path layout pug file
+   *
+   * @return {string}
+   */
+  getLayout() {
+    return './test-app/view/main.layout.pug';
+  }
 
-    return "<h1>Kate web MVC! Hello world!</h1>";
+
+  @action('/') // express http server compatible route 
+  someIndexAction(req): string { 
+  
+    // by calling this.render will render layout from getLayout() method
+    return this.render(
+      './test-app/view/index.pug',
+      {name: 'Vasia'}
+      );
+  }
+
+  @action('/test')
+  someIndexAction2(req): string {
+    return 'this is action 3'; // also you can return just simle strings
   }
 
 }
 
-// register controller
-KatrineApp.addController(new IndexController());
-
-const port = process.env.PORT || 3000;
-KatrineApp.run(port);
-
-
-```
-then run `tsc` compiler 
-
+``` 
