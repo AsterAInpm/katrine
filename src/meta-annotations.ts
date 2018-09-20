@@ -1,8 +1,25 @@
 import KateWebApp from "./KatrineApp";
 
-export function action(route: string) {
+import {ActionDescriptor, HTTPRequestType} from './@types';
 
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    KateWebApp.storeRoute(route, propertyKey, target.constructor);
+/**
+ * Marks handler(function) in controller as action
+ *
+ * @param route - Express compatible router
+ * @param method - POST/GET that will be bind
+ */
+export function action(
+  route: string,
+  method: HTTPRequestType = HTTPRequestType.GET
+) {
+  return function (target: any, actionMethod: string, descriptor: PropertyDescriptor) {
+    const actionDescriptor: ActionDescriptor = {
+      route,
+      actionMethod,
+      requestType: method
+    };
+
+    KateWebApp.storeRoute(actionDescriptor, target.constructor);
   };
+
 }

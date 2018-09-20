@@ -1,4 +1,6 @@
-import * as express from 'express'
+import * as express from 'express';
+
+import { ActionDescriptor, HTTPRequestType } from './@types';
 
 export default new class KatrineApp {
 
@@ -6,7 +8,7 @@ export default new class KatrineApp {
 
   private controllers = [];
 
-  private storedRoutes: Map<any, Map<string, string> > = new Map<any, Map<string, string> >();
+  private storedRoutes: Map<string, ActionDescriptor[] > = new Map<string, ActionDescriptor[] >();
 
   private actions: Map<string, any> = new Map<string, any>();
 
@@ -23,31 +25,30 @@ export default new class KatrineApp {
     this.express.use(express.static(folder));
   }
 
-  storeRoute(route: string, handler, context) {
-    let routeMap: Map<string, string>;
-    if (this.storedRoutes.has(context)) {
-      routeMap = this.storedRoutes.get(context);
+  storeRoute(actionDescriptor: ActionDescriptor,  controllerContext) {
+    let routeMap = [];
+    if (this.storedRoutes.has(controllerContext)) {
+      routeMap = this.storedRoutes.get(controllerContext);
     } else {
-      routeMap = new Map<string, string>();
-      this.storedRoutes.set(context, routeMap);
+      this.storedRoutes.set(controllerContext, routeMap);
     }
-    routeMap.set(route, handler);
+    routeMap.push(actionDescriptor);
   }
 
   private initActions() {
-    this.storedRoutes.forEach((routeMap: Map<string, string>, context) => {
+    this.storedRoutes.forEach((routeArray: ActionDescriptor[], controllerContext) => {
       const controllerIndex = this.controllers.findIndex(item => {
-        return context == item.constructor;
+        return controllerContext == item.constructor;
       });
       if (controllerIndex == -1) {
         return;
       }
       const controllerInstance = this.controllers[controllerIndex];
-      routeMap.forEach((handler, route) => {
-        const action = controllerInstance[handler];
+      routeArray.forEach((item:  ActionDescriptor) => {
+        const action = controllerInstance[item.actionMethod];
         if (typeof action === 'function') {
-          this.bindRouteToServer(route, action, controllerInstance);
-          this.actions.set(route, action);
+          this.bindRouteToServer(item, action, controllerInstance);
+          this.actions.set(item.route, action);
         }
       });
 
@@ -66,8 +67,8 @@ export default new class KatrineApp {
   }
 
 
-  private bindRouteToServer(route: string, action, controller) {
-    this.express.get(route, (req, res) => {
+  private bindRouteToServer(route: ActionDescriptor, action, controller) {
+    const requestHandler = (req, res) => {
       this.getActionPromise(action, controller, req)
         .then((respString) => {
           res.send(respString);
@@ -76,7 +77,19 @@ export default new class KatrineApp {
           res.status(404)
           res.send('Page not found');
         })
-    });
+    };
+
+    switch(route.requestType) {
+      case HTTPRequestType.GET:
+        this.express.get(route.route, requestHandler);
+        break;
+      case HTTPRequestType.POST:
+        this.express.post(route.route, requestHandler);
+        break;
+      default:
+        throw new Error(`Can't handle "${route.actionMethod}" HTTP method.`);
+    }
+
   }
 
   run(port) {
