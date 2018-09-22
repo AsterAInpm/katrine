@@ -69,11 +69,20 @@ export default new class KatrineApp {
     });
   }
 
-  private getActionPromise(action, controller, req) {
+  private getActionPromise(action, controller, req, res) {
     return new Promise((resolve, reject) => {
       try {
-        const respString = action.apply(controller, [req]);
-        resolve(respString);
+        const responce = action.apply(controller, [req, res]);
+        if (typeof responce == 'string') {
+          resolve(responce);
+        } else if (responce.constructor.name === 'Promise') {
+          responce.then((respnceString) => {
+            resolve(respnceString);
+          })
+        } else {
+          reject('error')
+        }
+
       } catch (e) {
         reject('error')
       }
@@ -83,7 +92,7 @@ export default new class KatrineApp {
 
   private bindRouteToServer(route: ActionDescriptor, action, controller) {
     const requestHandler = (req, res) => {
-      this.getActionPromise(action, controller, req)
+      this.getActionPromise(action, controller, req, res)
         .then((respString) => {
           res.send(respString);
         })
