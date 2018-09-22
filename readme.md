@@ -7,7 +7,7 @@ https://github.com/AsterAInpm/katrine-hello-world/
 ### Description of main features in controller
 
 ``` typescript
-import { action, Controller } from 'katrine';
+import { action, Controller, HTTPRequestType } from 'katrine';
 
 
 export default class IndexController extends Controller {
@@ -29,11 +29,12 @@ export default class IndexController extends Controller {
     return this.render(
       './test-app/view/index.pug',
       {name: 'Vasia'}
-      );
+    );
   }
 
-  @action('/test')
-  someIndexAction2(req): string {
+  @action('/testpost', HTTPRequestType.POST)
+  somePostAction(req): string {
+    console.dir(req.body); // log post body
     return 'this is action 3'; // also you can return just simle strings
   }
 
