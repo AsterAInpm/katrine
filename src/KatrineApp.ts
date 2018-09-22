@@ -1,9 +1,19 @@
 import * as express from 'express';
-const bodyParser = require("body-parser");
+import * as bodyParser from 'body-parser';
+import * as session from 'express-session';
 
 import { ActionDescriptor, HTTPRequestType } from './@types';
+import UserInterface from "./UserInterface";
 
 export default new class KatrineApp {
+
+  private httpPort: number = 3400;
+
+  private sessionConfig = {
+    secret: "gfw4sdffgw4tas34532sdfg",
+    resave: false,
+    saveUninitialized: true
+  };
 
   private express;
 
@@ -18,6 +28,7 @@ export default new class KatrineApp {
     this.express = express();
     this.express.use(bodyParser.urlencoded({ extended: false }));
     this.express.use(bodyParser.json());
+    this.express.use(session(this.sessionConfig));
   }
 
   addController(controller) {
@@ -95,21 +106,46 @@ export default new class KatrineApp {
 
   }
 
-  run(port) {
+  private applyConfig(config) {
+    if (!(config && typeof config == 'object')) {
+      return;
+    }
+
+    if (config.httpServer) {
+      if (config.httpServer.port) {
+        this.httpPort = config.httpServer.port;
+      }
+
+      if (config.httpServer.sessionConfig) {
+        Object.assign(this.sessionConfig, config.httpServer.sessionConfig);
+      }
+    }
+  }
+
+  run(config) {
+    this.applyConfig(config);
     if (this.actions.size === 0) {
       this.initActions();
     }
     if (this.actions.size === 0) {
       throw new Error('Application must contain atleast 1 action');
     }
-    this.express.listen(port, (err) => {
+
+    this.express.listen(this.httpPort, (err) => {
       if (err) {
         return console.log(err)
       }
 
-      return console.log(`server is listening on ${port}`)
+      return console.log(`server is listening on ${this.httpPort}`)
     });
 
+  }
+
+  auth(session, user : UserInterface) {
+    session.authenticated = true;
+    session.userData = user.getUserData();
+    session.uid = user.getId();
+    session.role = user.getRole();
   }
 
 }

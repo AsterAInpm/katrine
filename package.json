@@ -23,6 +23,7 @@
     "@types/node": "^10.5.2",
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
+    "express-session": "^1.15.6",
     "pug": "^2.0.3",
     "reflect-metadata": "^0.1.12",
     "typescript": "^2.9.2"
