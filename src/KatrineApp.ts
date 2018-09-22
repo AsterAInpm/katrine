@@ -1,4 +1,5 @@
 import * as express from 'express';
+const bodyParser = require("body-parser");
 
 import { ActionDescriptor, HTTPRequestType } from './@types';
 
@@ -15,6 +16,8 @@ export default new class KatrineApp {
 
   constructor() {
     this.express = express();
+    this.express.use(bodyParser.urlencoded({ extended: false }));
+    this.express.use(bodyParser.json());
   }
 
   addController(controller) {
