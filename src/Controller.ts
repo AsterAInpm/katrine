@@ -33,17 +33,27 @@ export default class Controller {
 
     const renderedActionContent = template(params);
 
-    if (this.getLayout()) {
-      return this.renderLayout(renderedActionContent);
+    const layout = this.getLayout();
+    if (layout) {
+      return this.finallRender(renderedActionContent, layout, params);
     }
 
     return renderedActionContent;
   }
 
-  protected renderLayout(content) {
-    const template = this.getPugLayoutTemplate(this.getLayout());
+  protected renderLyout(viewPath: string, layoutPath: string, params) {
+    const template = this.getPugViewTemplate(viewPath);
 
-    return template({ content });
+    const renderedActionContent = template(params);
+
+    return this.finallRender(renderedActionContent, layoutPath, params);
+  }
+
+
+  private finallRender(content, layout: string, params = {}) {
+    const template = this.getPugLayoutTemplate(layout);
+
+    return template({ content, ...params });
   }
 
 }
