@@ -69,22 +69,22 @@ export default new class KatrineApp {
     });
   }
 
-  private getActionPromise(action, controller, req, res) {
+  private getActionPromise(action, controller, req, res): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
         const responce = action.apply(controller, [req, res]);
         if (typeof responce == 'string') {
           resolve(responce);
         } else if (responce.constructor.name === 'Promise') {
-          responce.then((respnceString) => {
-            resolve(respnceString);
+          responce.then((responceString) => {
+            resolve(responceString);
           })
         } else {
-          reject('error')
+          reject('Unsupported type returned from ontroller')
         }
 
       } catch (e) {
-        reject('error')
+        reject(e);
       }
     })
   }
@@ -96,8 +96,10 @@ export default new class KatrineApp {
         .then((respString) => {
           res.send(respString);
         })
-        .catch(() => {
-          res.status(404)
+        .catch((error) => {
+          console.error(error);
+
+          res.status(404);
           res.send('Page not found');
         })
     };
@@ -142,10 +144,13 @@ export default new class KatrineApp {
 
     this.express.listen(this.httpPort, (err) => {
       if (err) {
-        return console.log(err)
+        console.error(err);
+        return;
       }
 
-      return console.log(`server is listening on ${this.httpPort}`)
+      console.log(`server is listening on ${this.httpPort}`);
+
+      return;
     });
 
   }
