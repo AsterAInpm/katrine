@@ -32,6 +32,11 @@ export default class IndexController extends Controller {
     );
   }
 
+  @action('404') // default 404 handler
+  pageNotFound(req): string {
+    return this.render('./test-app/view/404.pug',{});
+  }
+
   @action('/testpost', HTTPRequestType.POST)
   somePostAction(req): string {
     console.dir(req.body); // log post body

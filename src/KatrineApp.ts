@@ -61,18 +61,34 @@ export default new class KatrineApp {
       routeArray.forEach((item:  ActionDescriptor) => {
         const action = controllerInstance[item.actionMethod];
         if (typeof action === 'function') {
-          this.bindRouteToServer(item, action, controllerInstance);
-          this.actions.set(item.route, action);
+          const boundAction = action.bind(controllerInstance);
+          this.bindRouteToServer(item, boundAction);
+          this.actions.set(item.route, boundAction);
         }
       });
 
     });
+    this.express.all('*', this.handle404.bind(this));
   }
 
-  private getActionPromise(action, controller, req, res): Promise<any> {
+  private handle404(req, res) {
+    if (this.actions.has('404')) {
+      const action = this.actions.get('404');
+      this.callAction(action, req, res, 404);
+      return;
+    }
+
+    res.status(404);
+    res.send(JSON.stringify({
+      'status': 'error',
+      'description': 'Page not found...'
+    }));
+  }
+
+  private getActionPromise(action, req, res): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
-        const responce = action.apply(controller, [req, res]);
+        const responce = action(req, res);
         if (typeof responce == 'string') {
           resolve(responce);
         } else if (responce.constructor.name === 'Promise') {
@@ -80,7 +96,7 @@ export default new class KatrineApp {
             resolve(responceString);
           })
         } else {
-          reject('Unsupported type returned from ontroller')
+          reject('Unsupported type returned from Controller')
         }
 
       } catch (e) {
@@ -89,27 +105,33 @@ export default new class KatrineApp {
     })
   }
 
+  private callAction(action, req, res, status = 200) {
+    this.getActionPromise(action, req, res)
+      .then((respString) => {
+        res.status(status);
+        res.send(respString);
+      })
+      .catch((error) => {
+        console.error(error);
 
-  private bindRouteToServer(route: ActionDescriptor, action, controller) {
-    const requestHandler = (req, res) => {
-      this.getActionPromise(action, controller, req, res)
-        .then((respString) => {
-          res.send(respString);
-        })
-        .catch((error) => {
-          console.error(error);
+        res.status(500);
+        res.send('Internal server error...');
+      })
+  }
 
-          res.status(404);
-          res.send('Page not found');
-        })
-    };
 
+  private requestHandler(action, req, res) {
+    // because express send by fourth parameter next() callback, need to wrap
+    this.callAction(action, req, res);
+  }
+
+  private bindRouteToServer(route: ActionDescriptor, action) {
     switch(route.requestType) {
       case HTTPRequestType.GET:
-        this.express.get(route.route, requestHandler);
+        this.express.get(route.route, this.requestHandler.bind(this, action));
         break;
       case HTTPRequestType.POST:
-        this.express.post(route.route, requestHandler);
+        this.express.post(route.route, this.requestHandler.bind(this, action));
         break;
       default:
         throw new Error(`Can't handle "${route.actionMethod}" HTTP method.`);
