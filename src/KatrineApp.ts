@@ -91,12 +91,20 @@ export default new class KatrineApp {
         const responce = action(req, res);
         if (typeof responce == 'string') {
           resolve(responce);
-        } else if (responce.constructor.name === 'Promise') {
+        } else if (responce.constructor.name === 'Promise' || responce.constructor.name ===  'WrappedPromise') {
           responce.then((responceString) => {
             resolve(responceString);
           })
         } else {
-          reject('Unsupported type returned from Controller')
+
+          const baseError = `Unsupported type returned from Controller  ${typeof responce}`;
+          let constructorType = '';
+
+          if (responce && responce.constructor && responce.constructor.name) {
+            constructorType = `Instance of wrong object "${responce.constructor.name}"`;
+          }
+
+          reject(baseError + constructorType);
         }
 
       } catch (e) {
