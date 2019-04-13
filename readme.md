@@ -32,10 +32,18 @@ export default class IndexController extends Controller {
     );
   }
 
+
+  @action('/sample-string')
+  sampleRenderStringAction(req): string {
+    return this.renderString('This page will rendered with "main.layout.pug" layout');
+  }
+
+
   @action('404') // default 404 handler
   pageNotFound(req): string {
-    return this.render('./test-app/view/404.pug',{});
+    return this.render('./test-app/view/404.pug');
   }
+
 
   @action('/testpost', HTTPRequestType.POST)
   somePostAction(req): string {

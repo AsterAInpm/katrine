@@ -28,7 +28,7 @@ export default class Controller {
     return this.cachedLayoutViews.get(layoutName);
   }
 
-  protected render(viewPath, params) {
+  protected render(viewPath, params = {}) {
     const template = this.getPugViewTemplate(viewPath);
 
     const renderedActionContent = template(params);
@@ -39,6 +39,15 @@ export default class Controller {
     }
 
     return renderedActionContent;
+  }
+
+  protected renderString(content: string, params = {}) {
+    const layout = this.getLayout();
+    if (layout) {
+      return this.finallRender(content, layout, params);
+    }
+
+    return content;
   }
 
   protected renderLyout(viewPath: string, layoutPath: string, params) {
