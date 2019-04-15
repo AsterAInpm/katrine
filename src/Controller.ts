@@ -1,11 +1,11 @@
 const pug = require('pug');
 
-export default class Controller {
+export default abstract class Controller {
 
   protected cachedViews: Map<string, any> = new Map<string, any>();
   protected cachedLayoutViews: Map<string, any> = new Map<string, any>();
 
-  public getLayout(): string {
+  protected getLayout(): string {
     return '';
   }
 
