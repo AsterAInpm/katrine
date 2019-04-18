@@ -1,6 +1,4 @@
-import KateWebApp from "./KatrineApp";
-
-import { HTTPRequestType, KatrineActionInterface } from './@types';
+import { AccessByRoleData, AccessRulesType, HTTPRequestType, HTTPStatusCode, KatrineActionInterface } from './@types';
 import KatrineAction from "./metadata/KatrineAction";
 import projectMetadata from "./metadata/ProjectMetadata";
 
@@ -32,3 +30,18 @@ export function action(
 export function controller(controllerClass: any) {
   projectMetadata.addController(controllerClass.name, controllerClass);
 }
+
+export const accessByRole = (
+  roles: string | string[]
+) => {
+
+  return function (controller: any, actionMethod: string, descriptor: PropertyDescriptor) {
+
+    const ruleData: AccessByRoleData = {
+      type: AccessRulesType.ByRole,
+      roles
+    };
+
+    projectMetadata.addAccessByRoleRule(ruleData, actionMethod, controller);
+  };
+};

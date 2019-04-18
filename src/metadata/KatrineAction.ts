@@ -1,4 +1,4 @@
-import { HTTPRequestType, KatrineActionInterface } from "../@types";
+import AccessRuleInterface, { HTTPRequestType, KatrineActionInterface } from "../@types";
 
 export default class KatrineAction implements KatrineActionInterface {
 
@@ -10,6 +10,7 @@ export default class KatrineAction implements KatrineActionInterface {
   private controller: any;
   private boundMethod: any;
 
+  private accessRules: AccessRuleInterface[] = [];
 
   constructor(
     route: string,
@@ -62,4 +63,13 @@ export default class KatrineAction implements KatrineActionInterface {
   setController(controller: any): void {
     this.controller = controller;
   }
+
+  addAccessRule(rule: AccessRuleInterface) {
+    this.accessRules.push(rule);
+  }
+
+  canAccess(req): boolean {
+    return !!this.accessRules.find(rule => !rule.canAccess(req));
+  }
+
 }
