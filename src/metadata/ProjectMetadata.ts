@@ -1,4 +1,5 @@
 import AccessRuleInterface, {
+  AccessByAuthData,
   AccessByRoleData,
   AccessRulesType,
   AccessTypeable,
@@ -7,6 +8,7 @@ import AccessRuleInterface, {
 } from '../@types';
 
 import AccessByRole from '../rbac/AccessByRole';
+import AccessByAuth from '../rbac/AccessByAuth';
 
 type ActionRule = AccessTypeable &{ action: string };
 
@@ -87,6 +89,9 @@ class ProjectMetadata implements ProjectMetadataInterface {
       switch (rule.type) {
         case AccessRulesType.ByRole:
           _rule = new AccessByRole(rule as (ActionRule & AccessByRoleData));
+          break;
+        case AccessRulesType.ByAuth:
+          _rule = new AccessByAuth(rule as (ActionRule & AccessByAuthData));
           break;
         default:
             throw `Rule ${rule.type} is not supported`;

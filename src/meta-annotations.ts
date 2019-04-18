@@ -1,4 +1,12 @@
-import { AccessByRoleData, AccessRulesType, HTTPRequestType, HTTPStatusCode, KatrineActionInterface } from './@types';
+import {
+  AccessByAuthData,
+  AccessByRoleData,
+  AccessRulesType,
+  AuthStatus,
+  HTTPRequestType,
+  KatrineActionInterface
+} from './@types';
+
 import KatrineAction from "./metadata/KatrineAction";
 import projectMetadata from "./metadata/ProjectMetadata";
 
@@ -31,6 +39,7 @@ export function controller(controllerClass: any) {
   projectMetadata.addController(controllerClass.name, controllerClass);
 }
 
+
 export const accessByRole = (
   roles: string | string[]
 ) => {
@@ -40,6 +49,22 @@ export const accessByRole = (
     const ruleData: AccessByRoleData = {
       type: AccessRulesType.ByRole,
       roles
+    };
+
+    projectMetadata.addAccessByRoleRule(ruleData, actionMethod, controller);
+  };
+};
+
+
+export const accessByAuth = (
+  auth: AuthStatus = AuthStatus.LOGGED_IN
+) => {
+
+  return function (controller: any, actionMethod: string, descriptor: PropertyDescriptor) {
+
+    const ruleData: AccessByAuthData = {
+      type: AccessRulesType.ByAuth,
+      auth
     };
 
     projectMetadata.addAccessByRoleRule(ruleData, actionMethod, controller);

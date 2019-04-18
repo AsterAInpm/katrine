@@ -5,6 +5,11 @@ export enum HTTPStatusCode {
   ACCESS_FORBIDDEN = '403',
 }
 
+export enum AuthStatus {
+  LOGGED_IN,
+  NOT_LOGGED_IN,
+}
+
 export enum HTTPRequestType {
   GET = "GET",
   POST = "POST"
@@ -56,10 +61,15 @@ export default interface AccessRuleInterface {
 
 export enum AccessRulesType {
   ByRole = 'role',
+  ByAuth = 'auth',
 }
 
 export type AccessTypeable = { type: AccessRulesType, };
 
 export type AccessByRoleData = AccessTypeable & {
   roles: string | string[]
+};
+
+export type AccessByAuthData = AccessTypeable & {
+  auth: AuthStatus
 };
