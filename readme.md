@@ -230,3 +230,9 @@ e.g: `if (!rule_1 || !rule_n) reject ...`, so you can combine them to make more 
     // allows user to call action according to his Auth state `signed in / not signed in`
     @accessByAuth(auth: AuthStatus)
 ```
+
+[Fill free to make issue reports, or request a features](https://github.com/AsterAInpm/katrine/issues)
+
+My email [asterai.com@gmail.com](mailto:asterai.com@gmail.com)
+
+Alex.
