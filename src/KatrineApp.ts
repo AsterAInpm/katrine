@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as session from 'express-session';
 import * as path from 'path';
-import { HTTPRequestType, KatrineActionInterface } from './@types';
+import { HTTPRequestType, HTTPStatusCode, KatrineActionInterface } from './@types';
 import UserInterface from "./UserInterface";
 import projectMetadata from "./metadata/ProjectMetadata";
 
@@ -17,9 +17,6 @@ export default new class KatrineApp {
   };
 
   private express;
-
-  private actions: Map<string, any> = new Map<string, any>();
-
 
   constructor() {
     this.express = express();
@@ -64,16 +61,31 @@ export default new class KatrineApp {
   }
 
   private handle404(req, res) {
-    if (projectMetadata.getActionByRoute('404')) {
-      const action = this.actions.get('404');
-      this.callAction(action, req, res, 404);
+    const action = projectMetadata.getActionByRoute(HTTPStatusCode.PAGE_NOT_FOUND);
+    if (action) {
+      this.callAction(action, req, res, HTTPStatusCode.PAGE_NOT_FOUND);
       return;
     }
 
-    res.status(404);
+    res.status(HTTPStatusCode.PAGE_NOT_FOUND);
     res.send(JSON.stringify({
       'status': 'error',
       'description': 'Page not found...'
+    }));
+  }
+
+  private handle403(req, res) {
+
+    const action = projectMetadata.getActionByRoute(HTTPStatusCode.ACCESS_FORBIDDEN);
+    if (action) {
+      this.callAction(action, req, res, HTTPStatusCode.ACCESS_FORBIDDEN);
+      return;
+    }
+
+    res.status(HTTPStatusCode.ACCESS_FORBIDDEN);
+    res.send(JSON.stringify({
+      'status': 'error',
+      'description': 'Access forbidden...'
     }));
   }
 
@@ -106,7 +118,13 @@ export default new class KatrineApp {
     })
   }
 
-  private callAction(action: KatrineActionInterface, req, res, status = 200) {
+  private callAction(action: KatrineActionInterface, req, res, status: string = HTTPStatusCode.SUCCESS) {
+    const accessError = action.canAccess(req);
+    if (accessError) {
+      this.handle403(req, res);
+      return;
+    }
+
     this.getActionPromise(action, req, res)
       .then((respString) => {
         res.status(status);
