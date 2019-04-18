@@ -1,6 +1,8 @@
 import KateWebApp from "./KatrineApp";
 
-import {ActionDescriptor, HTTPRequestType} from './@types';
+import { HTTPRequestType, KatrineActionInterface } from './@types';
+import KatrineAction from "./metadata/KatrineAction";
+import projectMetadata from "./metadata/ProjectMetadata";
 
 /**
  * Marks handler(function) in controller as action
@@ -12,14 +14,21 @@ export function action(
   route: string,
   method: HTTPRequestType = HTTPRequestType.GET
 ) {
-  return function (target: any, actionMethod: string, descriptor: PropertyDescriptor) {
-    const actionDescriptor: ActionDescriptor = {
+  return function (controller: any, actionMethod: string, descriptor: PropertyDescriptor) {
+
+    const action: KatrineActionInterface = new KatrineAction(
       route,
       actionMethod,
-      requestType: method
-    };
+      method,
+      controller
+    );
 
-    KateWebApp.storeRoute(actionDescriptor, target.constructor);
+    projectMetadata.storeAction(action);
   };
 
+}
+
+
+export function controller(controllerClass: any) {
+  projectMetadata.addController(controllerClass.name, controllerClass);
 }

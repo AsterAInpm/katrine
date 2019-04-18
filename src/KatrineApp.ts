@@ -1,9 +1,10 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as session from 'express-session';
-
-import { ActionDescriptor, HTTPRequestType } from './@types';
+import * as path from 'path';
+import { HTTPRequestType, KatrineActionInterface } from './@types';
 import UserInterface from "./UserInterface";
+import projectMetadata from "./metadata/ProjectMetadata";
 
 export default new class KatrineApp {
 
@@ -17,10 +18,6 @@ export default new class KatrineApp {
 
   private express;
 
-  private controllers = [];
-
-  private storedRoutes: Map<string, ActionDescriptor[] > = new Map<string, ActionDescriptor[] >();
-
   private actions: Map<string, any> = new Map<string, any>();
 
 
@@ -31,48 +28,43 @@ export default new class KatrineApp {
     this.express.use(session(this.sessionConfig));
   }
 
-  addController(controller) {
-    this.controllers.push(controller);
-  }
-
   setPublicFolder(folder: string) {
     this.express.use(express.static(folder));
   }
 
-  storeRoute(actionDescriptor: ActionDescriptor,  controllerContext) {
-    let routeMap = [];
-    if (this.storedRoutes.has(controllerContext)) {
-      routeMap = this.storedRoutes.get(controllerContext);
-    } else {
-      this.storedRoutes.set(controllerContext, routeMap);
-    }
-    routeMap.push(actionDescriptor);
+  loadControllers(controllers: string[]) {
+    controllers.forEach(contPath => {
+      let basePath = '';
+      if (contPath[0] === '.') {
+        basePath = path.dirname(require.main.filename) + '/';
+      }
+      const controller = require(basePath + contPath);
+      if (!controller) {
+        throw 'Controller is undefined';
+      }
+    })
   }
 
   private initActions() {
-    this.storedRoutes.forEach((routeArray: ActionDescriptor[], controllerContext) => {
-      const controllerIndex = this.controllers.findIndex(item => {
-        return controllerContext == item.constructor;
-      });
-      if (controllerIndex == -1) {
-        return;
-      }
-      const controllerInstance = this.controllers[controllerIndex];
-      routeArray.forEach((item:  ActionDescriptor) => {
-        const action = controllerInstance[item.actionMethod];
-        if (typeof action === 'function') {
-          const boundAction = action.bind(controllerInstance);
-          this.bindRouteToServer(item, boundAction);
-          this.actions.set(item.route, boundAction);
-        }
-      });
+    projectMetadata.getActions().forEach((action: KatrineActionInterface) => {
+      const boundAction: KatrineActionInterface = projectMetadata.getActionByRoute(action.getRoute());
 
+      switch(action.getRequestType()) {
+        case HTTPRequestType.GET:
+          this.express.get(action.getRoute(), this.requestHandler.bind(this, boundAction));
+          break;
+        case HTTPRequestType.POST:
+          this.express.post(action.getRoute(), this.requestHandler.bind(this, boundAction));
+          break;
+        default:
+          throw new Error(`Can't handle "${action.getActionMethodName()}" HTTP method.`);
+      }
     });
     this.express.all('*', this.handle404.bind(this));
   }
 
   private handle404(req, res) {
-    if (this.actions.has('404')) {
+    if (projectMetadata.getActionByRoute('404')) {
       const action = this.actions.get('404');
       this.callAction(action, req, res, 404);
       return;
@@ -85,10 +77,11 @@ export default new class KatrineApp {
     }));
   }
 
-  private getActionPromise(action, req, res): Promise<any> {
+  private getActionPromise(action: KatrineActionInterface, req, res): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
-        const responce = action(req, res);
+        const responce = action.invoke(req, res);
+
         if (typeof responce == 'string') {
           resolve(responce);
         } else if (responce.constructor.name === 'Promise' || responce.constructor.name ===  'WrappedPromise') {
@@ -113,7 +106,7 @@ export default new class KatrineApp {
     })
   }
 
-  private callAction(action, req, res, status = 200) {
+  private callAction(action: KatrineActionInterface, req, res, status = 200) {
     this.getActionPromise(action, req, res)
       .then((respString) => {
         res.status(status);
@@ -128,24 +121,11 @@ export default new class KatrineApp {
   }
 
 
-  private requestHandler(action, req, res) {
+  private requestHandler(action: KatrineActionInterface, req, res) {
     // because express send by fourth parameter next() callback, need to wrap
     this.callAction(action, req, res);
   }
 
-  private bindRouteToServer(route: ActionDescriptor, action) {
-    switch(route.requestType) {
-      case HTTPRequestType.GET:
-        this.express.get(route.route, this.requestHandler.bind(this, action));
-        break;
-      case HTTPRequestType.POST:
-        this.express.post(route.route, this.requestHandler.bind(this, action));
-        break;
-      default:
-        throw new Error(`Can't handle "${route.actionMethod}" HTTP method.`);
-    }
-
-  }
 
   private applyConfig(config) {
     if (!(config && typeof config == 'object')) {
@@ -165,11 +145,12 @@ export default new class KatrineApp {
 
   run(config) {
     this.applyConfig(config);
-    if (this.actions.size === 0) {
+    if (!projectMetadata.hasAnyActions()) {
       this.initActions();
     }
-    if (this.actions.size === 0) {
-      throw new Error('Application must contain atleast 1 action');
+
+    if (!projectMetadata.hasAnyActions()) {
+      throw new Error('Application must contain at least 1 action');
     }
 
     this.express.listen(this.httpPort, (err) => {
