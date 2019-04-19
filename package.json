@@ -1,11 +1,12 @@
 {
   "name": "katrine",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "Typescript written web framework",
   "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node ./node_modules/tsc-watch"
+    "dev": "node ./node_modules/tsc-watch",
+    "prepublish": "tsc"
   },
   "keywords": [
     "web",
