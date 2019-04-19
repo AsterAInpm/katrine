@@ -1,6 +1,6 @@
 const pug = require('pug');
 
-export default abstract class Controller {
+export default abstract class KatrineController {
 
   protected cachedViews: Map<string, any> = new Map<string, any>();
   protected cachedLayoutViews: Map<string, any> = new Map<string, any>();
@@ -50,7 +50,7 @@ export default abstract class Controller {
     return content;
   }
 
-  protected renderLyout(viewPath: string, layoutPath: string, params) {
+  protected renderLayout(viewPath: string, layoutPath: string, params) {
     const template = this.getPugViewTemplate(viewPath);
 
     const renderedActionContent = template(params);
