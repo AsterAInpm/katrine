@@ -1,4 +1,5 @@
 import  KatrineApp from './KatrineApp';
+import  UserInterface from './UserInterface';
 import  { action, controller, accessByRole, accessByAuth } from './meta-annotations';
 import  KatrineController from './Controller';
 
@@ -12,7 +13,8 @@ export {
   HTTPRequestType,
   accessByRole,
   accessByAuth,
-  AuthStatus
+  AuthStatus,
+  UserInterface
 }
 
 
