@@ -16,6 +16,3 @@ export {
   AuthStatus,
   UserInterface
 }
-
-
-console.log('CATRIN INITIALIZED');
