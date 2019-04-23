@@ -9,7 +9,7 @@ For development lightweight server apps.
     * [Bootstrap Katrine](#bootstrap-katrine)
     * [Controllers and actions](#controllers-and-actions)
     * [View](#view)
-    * [Login user](#login-user)
+    * [Login or logout user](#login-or-logout-user)
     * [Access control](#access-control)
 
 ### Related links
@@ -167,7 +167,7 @@ export default class IndexController extends KatrineController {
 
 ```
 
-### Login / logout user
+### Login or logout user
 
 There are 2 methods to login and logout user. 
 
