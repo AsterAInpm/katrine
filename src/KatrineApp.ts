@@ -106,7 +106,7 @@ export default new class KatrineApp {
         } else {
 
           const baseError = `Unsupported type returned from Controller "${typeof responce}"
-            Please use "string" or Promise in your actions.
+            Please retrun "string" or "Promise" from your actions.
             https://www.npmjs.com/package/katrine#controllers-and-actions`;
 
           let constructorType = '';
