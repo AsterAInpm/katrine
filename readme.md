@@ -167,8 +167,17 @@ export default class IndexController extends KatrineController {
 
 ```
 
-### Login user
+### Login / logout user
 
+There are 2 methods to login and logout user. 
+
+```typescript
+  KatrineApp.auth(requestSession);
+  KatrineApp.authLogoutUser(requestSession);
+```
+
+Full example of posible UserController within your app.
+ 
 ```typescript
 
 @controller
@@ -214,6 +223,16 @@ export default class UserController extends KatrineController {
       })
     }
 
+  }
+
+  @accessByAuth(AuthStatus.LOGGED_IN)
+  @action('/user/logout')
+  logOutAction(req): string {
+    KatrineApp.authLogoutUser(req.session);
+    
+    return JSON.stringify({
+      status : 'success'
+    });
   }
 }
 ```

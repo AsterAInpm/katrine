@@ -96,13 +96,19 @@ export default new class KatrineApp {
 
         if (typeof responce == 'string') {
           resolve(responce);
-        } else if (responce.constructor.name === 'Promise' || responce.constructor.name ===  'WrappedPromise') {
+        } else if (responce && (
+          responce.constructor.name === 'Promise' ||
+          responce.constructor.name === 'WrappedPromise'
+        )) {
           responce.then((responceString) => {
             resolve(responceString);
           })
         } else {
 
-          const baseError = `Unsupported type returned from Controller  ${typeof responce}`;
+          const baseError = `Unsupported type returned from Controller "${typeof responce}"
+            Please use "string" or Promise in your actions.
+            https://www.npmjs.com/package/katrine#controllers-and-actions`;
+
           let constructorType = '';
 
           if (responce && responce.constructor && responce.constructor.name) {
@@ -189,6 +195,13 @@ export default new class KatrineApp {
     session.userData = user.getUserData();
     session.uid = user.getId();
     session.role = user.getRole();
+  }
+
+  authLogoutUser(session) {
+    session.authenticated = false;
+    session.userData = {};
+    session.uid = null;
+    session.role = null;
   }
 
 }
