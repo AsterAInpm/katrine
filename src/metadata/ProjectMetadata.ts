@@ -18,7 +18,8 @@ type ActionRule = AccessTypeable &{ action: string };
 class ProjectMetadata implements ProjectMetadataInterface {
 
   private _actions: Map<string, KatrineActionInterface> = new Map<string, KatrineActionInterface>();
-  private _controllers: Map<string, any> = new Map<string, any>();
+  private _rawControllers: Map<string, any> = new Map<string, any>();
+  private _controllerInstances: Map<string, any> = new Map<string, any>();
   private _boundedActions: Map<string, any> = new Map<string, any>();
 
   private _accessRules: ActionRule[] = [];
@@ -45,7 +46,7 @@ class ProjectMetadata implements ProjectMetadataInterface {
 
   storeAction(action: KatrineActionInterface) {
     this._actions.set(action.getRoute(), action);
-    this._controllers.set(action.getControllerName(), action.getController())
+    // this._controllers.set(action.getControllerName(), action.getController())
   }
 
   addAccessByRoleRule(ruleData: AccessTypeable, actionName: string, controller : any) {
@@ -56,7 +57,7 @@ class ProjectMetadata implements ProjectMetadataInterface {
   }
 
   addController(controllerName: string, controller : any) {
-    this._controllers.set(controllerName, controller)
+    this._rawControllers.set(controllerName, controller)
   }
 
   private compileAction(route: string) {
@@ -64,8 +65,12 @@ class ProjectMetadata implements ProjectMetadataInterface {
 
     let controllerInstance = action.getController();
     if (!controllerInstance) {
-      const controllerClass = action.getControllerClass();
-      controllerInstance = new controllerClass.constructor();
+      controllerInstance = this._controllerInstances.get(action.getControllerName());
+      if (!controllerInstance){
+        const controllerClass = action.getControllerClass();
+        controllerInstance = new controllerClass.constructor();
+        this._controllerInstances.set(action.getControllerName(), controllerInstance);
+      }
     }
     const boundAction = controllerInstance[action.getActionMethodName()].bind(controllerInstance);
     action.setController(controllerInstance);
