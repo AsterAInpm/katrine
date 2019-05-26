@@ -25,7 +25,7 @@ Add following dependencies, in your project
 ```json 
   "dependencies": {
     "@types/node": "9.6.7",
-    "katrine": "^1.4.2",
+    "katrine": "^1.4.4",
     "typescript": "^3.3.3"
   }
 ``` 
